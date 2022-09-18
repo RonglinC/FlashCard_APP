@@ -10,7 +10,7 @@ This App is a flashcard_app, which mean you could use it to review the notes you
 ### App Walk-though
 
 
-<img src="https://recordit.co/5WynIeKqxT" width=200><br>
+<img src="http://g.recordit.co/5WynIeKqxT.gif" width=200><br>
 
 
 ## Required
