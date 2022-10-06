@@ -9,7 +9,7 @@ user can create it own flashcard
 
 ### App Walk-though
 
-<img src="http://g.recordit.co/4t0DXI1wSY.gif" width=200><br>
+<img src="http://g.recordit.co/B68kU3Cysi.gif"><br>
 
 
 
