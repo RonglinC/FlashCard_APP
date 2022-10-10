@@ -11,11 +11,25 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
+    lateinit var flashcardDatabase: FlashcardDatabase
+    var allFlashcards = mutableListOf<Flashcard>()
+    var currCardDisplayedIndex = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        flashcardDatabase = FlashcardDatabase(this)
+        allFlashcards = flashcardDatabase.getAllCards().toMutableList()
+
         val flashcardQuestion = findViewById<TextView>(R.id.flashcard_question)
         val flashcardAnswer = findViewById<TextView>(R.id.flashcard_answer)
+        if (allFlashcards.size > 0) {
+            flashcardQuestion.text = allFlashcards[0].question
+            flashcardAnswer.text = allFlashcards[0].answer
+        }
+
+
         findViewById<TextView>(R.id.flashcard_question).setOnClickListener {
             findViewById<TextView>(R.id.flashcard_answer).visibility =TextView.VISIBLE
             findViewById<TextView>(R.id.flashcard_question).visibility =TextView.INVISIBLE
@@ -48,6 +62,10 @@ class MainActivity : AppCompatActivity() {
 
                 Log.i("hi: MainActivity", "question: $questionString")
                 Log.i("hi: MainActivity", "answer: $answerString")
+                if (!questionString.isNullOrEmpty() && !answerString.isNullOrEmpty()) {
+                    flashcardDatabase.insertCard(Flashcard(questionString, answerString))
+                    allFlashcards = flashcardDatabase.getAllCards().toMutableList()
+                }
             } else {
                 Log.i("hi: MainActivity", "Returned null data from AddCardActivity")
             }
@@ -59,6 +77,27 @@ class MainActivity : AppCompatActivity() {
             resultLauncher.launch(intent)
         }
 
+        val nextButton = findViewById<ImageView>(R.id.flashcard_next_card_button)
+        nextButton.setOnClickListener {
+            if (allFlashcards.isEmpty()) {
+                // early return so that the rest of the code doesn't execute
+                return@setOnClickListener
+            }
 
+            currCardDisplayedIndex++
+
+            if (currCardDisplayedIndex >= allFlashcards.size) {
+                // go back to the beginning
+                currCardDisplayedIndex = 0
+            }
+
+            allFlashcards = flashcardDatabase.getAllCards().toMutableList()
+
+            val question = allFlashcards[currCardDisplayedIndex].question
+            val answer = allFlashcards[currCardDisplayedIndex].answer
+
+            flashcardQuestion.text = question
+            flashcardAnswer.text = answer
+        }
     }
 }
