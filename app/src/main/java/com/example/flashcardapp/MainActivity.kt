@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,6 +40,21 @@ class MainActivity : AppCompatActivity() {
         flashcardQuestion.setOnClickListener {
             flashcardAnswer.visibility = View.VISIBLE
             flashcardQuestion.visibility = View.INVISIBLE
+            val answerSideView = findViewById<View>(R.id.flashcard_answer)
+            val questionSideView = findViewById<View>(R.id.flashcard_question)
+
+            val cx = answerSideView.width / 2
+            val cy = answerSideView.height / 2
+
+            val finalRadius = Math.hypot(cx.toDouble(), cy.toDouble()).toFloat()
+            val anim = ViewAnimationUtils.createCircularReveal(answerSideView, cx, cy, 0f, finalRadius)
+            questionSideView.visibility = View.INVISIBLE
+            answerSideView.visibility = View.VISIBLE
+
+            anim.duration = 3000
+            anim.start()
+
+
 
 //            Toast.makeText(this, "Question button was clicked", Toast.LENGTH_SHORT).show()
             Snackbar.make(flashcardQuestion, "Question button was clicked",
@@ -75,14 +93,34 @@ class MainActivity : AppCompatActivity() {
         addQuestionButton.setOnClickListener {
             val intent = Intent(this, AddCardActivity::class.java)
             resultLauncher.launch(intent)
+            overridePendingTransition(R.anim.right_in,R.anim.left_out)
+
         }
 
         val nextButton = findViewById<ImageView>(R.id.flashcard_next_card_button)
         nextButton.setOnClickListener {
+            val leftOutAnim = AnimationUtils.loadAnimation(this, R.anim.left_out)
+            val rightInAnim = AnimationUtils.loadAnimation(this, R.anim.right_in)
             if (allFlashcards.isEmpty()) {
                 // early return so that the rest of the code doesn't execute
                 return@setOnClickListener
             }
+            leftOutAnim.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                    // this method is called when the animation first starts
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    // this method is called when the animation is finished playing
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {
+                    // we don't need to worry about this method
+                }
+            })
+            findViewById<View>(R.id.flashcard_question).startAnimation(leftOutAnim)
+            findViewById<View>(R.id.flashcard_question).startAnimation(rightInAnim)
+
 
             currCardDisplayedIndex++
 
@@ -99,5 +137,6 @@ class MainActivity : AppCompatActivity() {
             flashcardQuestion.text = question
             flashcardAnswer.text = answer
         }
+
     }
 }
